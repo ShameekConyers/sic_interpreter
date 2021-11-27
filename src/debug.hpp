@@ -32,7 +32,7 @@ int static constant_instruction(
 {
 	uint8_t idx = chunk.m_data[offset + 1];
 	std::cout << name << ":\t";
-	std::cout << +idx << ", " << chunk.m_constants.m_data[idx];
+	std::cout << +idx << " '" << chunk.m_constants.m_data[idx] << "'";
 	std::cout << "\n";
 	return offset + 2;
 }
@@ -42,6 +42,7 @@ int static constant_instruction(
 int disassemble_instruction(const Chunk& chunk, int offset)
 {
 	std::cout << offset << ":\t ";
+	std::cout << +chunk.m_lines.m_data[offset] << "\t";
 
 	uint8_t instruction = chunk.m_data[offset];
 	switch (instruction) {

@@ -18,13 +18,21 @@ enum {
 // wrapper around an array of bytes
 
 // using Chunk = BaseArray<uint8_t>;
+using LineArray = BaseArray<uint8_t>;
 
 struct Chunk : public BaseArray<uint8_t> {
 	Chunk()
 		: BaseArray<uint8_t>()
 		, m_constants{}
+		, m_lines{}
 	{
 
+	}
+
+	void write(uint8_t byte, int line)
+	{
+		write(byte);
+		m_lines.write(line);
 	}
 
 	// returns the index of the value added
@@ -35,4 +43,8 @@ struct Chunk : public BaseArray<uint8_t> {
 	}
 
 	ValueArray m_constants;
+	LineArray m_lines;
+
+private:
+	using BaseArray<uint8_t>::write;
 };
