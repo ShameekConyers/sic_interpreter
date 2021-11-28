@@ -10,6 +10,11 @@ namespace OpCode
 {
 enum {
 	OP_CONSTANT, // 2 Bytes
+	OP_ADD,
+	OP_SUBTRACT,
+	OP_MULTIPLY,
+	OP_DIVIDE,
+	OP_NEGATE,	// 1 Byte
 	OP_RETURN,	// 1 Byte
 };
 
