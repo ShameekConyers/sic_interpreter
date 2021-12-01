@@ -9,13 +9,13 @@
 namespace OpCode
 {
 enum {
-	OP_CONSTANT, // 2 Bytes
-	OP_ADD,
-	OP_SUBTRACT,
-	OP_MULTIPLY,
-	OP_DIVIDE,
-	OP_NEGATE,	// 1 Byte
-	OP_RETURN,	// 1 Byte
+  OP_CONSTANT, // 2 Bytes
+  OP_ADD,
+  OP_SUBTRACT,
+  OP_MULTIPLY,
+  OP_DIVIDE,
+  OP_NEGATE,	// 1 Byte
+  OP_RETURN,	// 1 Byte
 };
 
 }
@@ -26,30 +26,30 @@ enum {
 using LineArray = BaseArray<uint8_t>;
 
 struct Chunk : public BaseArray<uint8_t> {
-	Chunk()
-		: BaseArray<uint8_t>()
-		, m_constants{}
-		, m_lines{}
-	{
+  Chunk()
+    : BaseArray<uint8_t>()
+    , m_constants{}
+    , m_lines{}
+  {
 
-	}
+  }
 
-	void write(uint8_t byte, int line)
-	{
-		write(byte);
-		m_lines.write(line);
-	}
+  void write(uint8_t byte, int line)
+  {
+    write(byte);
+    m_lines.write(line);
+  }
 
-	// returns the index of the value added
-	int add_constant(Value value)
-	{
-		m_constants.write(value);
-		return m_constants.m_count - 1;
-	}
+  // returns the index of the value added
+  int add_constant(Value value)
+  {
+    m_constants.write(value);
+    return m_constants.m_count - 1;
+  }
 
-	ValueArray m_constants;
-	LineArray m_lines;
+  ValueArray m_constants;
+  LineArray m_lines;
 
 private:
-	using BaseArray<uint8_t>::write;
+  using BaseArray<uint8_t>::write;
 };
