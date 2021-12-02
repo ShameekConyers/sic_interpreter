@@ -78,6 +78,7 @@ struct Scanner {
     char c = advance();
 
     //
+    if (is_alpha(c)) return make_identifier_token();
     if (is_digit(c)) return make_number_token();
     switch (c) {
       case '(': return make_token(TokenType::TOKEN_LEFT_PAREN);
@@ -114,6 +115,13 @@ struct Scanner {
 
 
     return make_error_token("unexpected character.");
+  }
+
+  bool is_alpha(char c)
+  {
+    return ('a' <= c && c <= 'z') ||
+      (c >= 'A' && c <= 'Z') ||
+      c == '_';
   }
 
   bool is_digit(char c)
@@ -236,9 +244,78 @@ struct Scanner {
     return make_token(TokenType::TOKEN_NUMBER);
   }
 
+  Token make_identifier_token()
+  {
+    while (is_alpha(peek()) || is_digit(peek())) {
+      advance();
+    }
+
+    return make_token(find_identifier_type());
+  }
+
+  // Trie
+  TokenType::Any find_identifier_type()
+  {
+    switch (m_start[0]) {
+      case 'a': return check_keyword("and", TokenType::TOKEN_AND);
+      case 'c': return check_keyword("class", TokenType::TOKEN_CLASS);
+      case 'e': return check_keyword("else", TokenType::TOKEN_ELSE);
+      case 'i': return check_keyword("if", TokenType::TOKEN_IF);
+      case 'n': return check_keyword("nil", TokenType::TOKEN_NIL);
+      case 'o': return check_keyword("or", TokenType::TOKEN_OR);
+      case 'p': return check_keyword("print", TokenType::TOKEN_PRINT);
+      case 'r': return check_keyword("return", TokenType::TOKEN_RETURN);
+      case 's': return check_keyword("super", TokenType::TOKEN_SUPER);
+      case 'l': return check_keyword("let", TokenType::TOKEN_LET);
+      case 'w': return check_keyword("while", TokenType::TOKEN_WHILE);
+
+      case 'f':
+        if (m_current - m_start == 1) {
+          break;
+        }
+        switch (m_start[1]) {
+          case 'n': return TokenType::TOKEN_FN;
+          case 'o': return check_keyword("for", TokenType::TOKEN_FOR);
+          case 'a': return check_keyword("false", TokenType::TOKEN_FALSE);
+        }
+
+      case 't':
+        if (m_current - m_start == 1) {
+          break;
+        }
+        switch (m_start[1]) {
+          case 'r': return  check_keyword("true", TokenType::TOKEN_TRUE);
+          case 'h': return check_keyword("this", TokenType::TOKEN_THIS);
+        }
+
+      default:
+        break;
+    }
+    return TokenType::TOKEN_IDENTIFIER;
+  }
+
+  TokenType::Any check_keyword(
+    const std::string& target_keyword,
+    TokenType::Any token_to_check)
+  {
+    const char* cursor = m_start;
+    size_t keyword_size = target_keyword.size();
+    if (m_current - m_start != keyword_size) {
+      return TokenType::TOKEN_IDENTIFIER;
+    }
+    for (uint32_t i = 0; i < keyword_size; i++) {
+
+      if (target_keyword[i] != cursor[0]) {
+        return TokenType::TOKEN_IDENTIFIER;
+      }
+    }
+
+    return token_to_check;
+  }
+
   // m_start_lexeme_char
   const char* m_start;
-  // m_current_lexeme_char
+  // m_current_lexeme_char (end of scanned token)
   const char* m_current;
   uint32_t m_line;
 };
