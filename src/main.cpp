@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 
+
 VM vm;
 
 void static repl()
@@ -79,15 +80,17 @@ int main(int argc, const char* argv [])
 
   // chunk.free();
 
-  if (argc == 1) {
-    repl();
-  }
-  else if (argc == 2) {
-    run_file(argv[1]);
-  }
-  else {
-    std::cerr << "Usage: cpplox [path]\n";
-    exit(64);
-  }
-  return 0;
+  const char* x = "123.24 19.32 darlings";
+  std::cout << std::stod(x);
+  // if (argc == 1) {
+  //   repl();
+  // }
+  // else if (argc == 2) {
+  //   run_file(argv[1]);
+  // }
+  // else {
+  //   std::cerr << "Usage: cpplox [path]\n";
+  //   exit(64);
+  // }
+  // return 0;
 }

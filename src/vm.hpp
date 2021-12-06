@@ -64,18 +64,31 @@ struct StaticStack {
 };
 
 struct VM {
+  Chunk* m_chunk;
+  uint8_t* m_instruction_ptr;
+  StaticStack<Value> m_vm_stack;
 
   InterpretResult::Any interpret(const std::string& source)
   {
-    compile(source);
-    return InterpretResult::OK;
+    Chunk chunk;
+
+    bool compile_success_flag = compile(source, chunk);
+    if (compile_success_flag == false) {
+      return InterpretResult::COMPILE_ERROR;
+    }
+
+    m_chunk = &chunk;
+    m_instruction_ptr = m_chunk->m_data;
+
+    InterpretResult::Any result = execute();
+    return result;
   }
 
   InterpretResult::Any interpret(Chunk& chunk)
   {
     m_chunk = &chunk;
     m_instruction_ptr = m_chunk->m_data;
-    return run();
+    return execute();
   }
 
   void init()
@@ -83,7 +96,7 @@ struct VM {
     reset_vm_stack();
   }
 
-  InterpretResult::Any run()
+  InterpretResult::Any execute()
   {
     for (;;) {
 
@@ -166,7 +179,4 @@ struct VM {
     m_vm_stack.push(func(a, b));
   }
 
-  Chunk* m_chunk;
-  uint8_t* m_instruction_ptr;
-  StaticStack<Value> m_vm_stack;
 };

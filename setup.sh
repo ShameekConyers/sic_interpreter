@@ -1,7 +1,8 @@
 
-rm -r build
-mkdir build &&
+# rm -rf build
+# mkdir build &&
 cd build &&
 cmake .. &&
-cmake --build
+cmake --build .
+./cpplox
 cd ..
