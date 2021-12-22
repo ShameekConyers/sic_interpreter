@@ -5,19 +5,19 @@
 namespace TokenType
 {
 enum Any {
-  // single-char tokens
+  // single-char tokens 0
   TOKEN_LEFT_PAREN, TOKEN_RIGHT_PAREN,
   TOKEN_LEFT_BRACE, TOKEN_RIGHT_BRACE,
   TOKEN_COMMA, TOKEN_DOT, TOKEN_SEMICOLON,
   TOKEN_MINUS, TOKEN_PLUS, TOKEN_SLASH, TOKEN_STAR,
 
-  // one or two character tokens
+  // one or two character tokens 11
   TOKEN_BANG, TOKEN_BANG_EQUAL,
   TOKEN_EQUAL, TOKEN_EQUAL_EQUAL,
   TOKEN_GREATER, TOKEN_GREATER_EQUAL,
   TOKEN_LESS, TOKEN_LESS_EQUAL,
 
-  // Literals
+  // Literals 19
   TOKEN_IDENTIFIER, TOKEN_STRING, TOKEN_NUMBER,
 
   // Keywords
@@ -69,6 +69,7 @@ struct Scanner {
 
   Token scan_token()
   {
+    std::cerr << "enter scan token\n";
     skip_whitespace();
     m_start = m_current;
 

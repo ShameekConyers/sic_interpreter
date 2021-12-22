@@ -4,5 +4,5 @@
 cd build &&
 cmake .. &&
 cmake --build .
-./cpplox
+./cpplox ./demo.txt
 cd ..

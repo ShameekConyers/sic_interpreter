@@ -72,14 +72,15 @@ struct VM {
   {
     Chunk chunk;
 
+    std::cerr << "interpet enter\n";
     bool compile_success_flag = compile(source, chunk);
     if (compile_success_flag == false) {
+      std::cerr << "compile error\n";
       return InterpretResult::COMPILE_ERROR;
     }
-
+    std::cerr << "interpret exit\n";
     m_chunk = &chunk;
     m_instruction_ptr = m_chunk->m_data;
-
     InterpretResult::Any result = execute();
     return result;
   }

@@ -11,7 +11,7 @@
 #include <sstream>
 
 
-VM vm;
+VM vm{};
 
 void static repl()
 {
@@ -23,8 +23,7 @@ void static repl()
       std::cout << "\n";
       break;
     }
-
-    // vm.interpret(line);
+    vm.interpret(line);
   }
 }
 
@@ -80,17 +79,15 @@ int main(int argc, const char* argv [])
 
   // chunk.free();
 
-  const char* x = "123.24 19.32 darlings";
-  std::cout << std::stod(x);
-  // if (argc == 1) {
-  //   repl();
-  // }
-  // else if (argc == 2) {
-  //   run_file(argv[1]);
-  // }
-  // else {
-  //   std::cerr << "Usage: cpplox [path]\n";
-  //   exit(64);
-  // }
-  // return 0;
+  if (argc == 1) {
+    repl();
+  }
+  else if (argc == 2) {
+    run_file(argv[1]);
+  }
+  else {
+    std::cerr << "Usage: cpplox [path]\n";
+    exit(64);
+  }
+  return 0;
 }
