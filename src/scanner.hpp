@@ -6,27 +6,40 @@ namespace TokenType
 {
 enum Any {
   // single-char tokens 0
-  TOKEN_LEFT_PAREN, TOKEN_RIGHT_PAREN,
-  TOKEN_LEFT_BRACE, TOKEN_RIGHT_BRACE,
-  TOKEN_COMMA, TOKEN_DOT, TOKEN_SEMICOLON,
-  TOKEN_MINUS, TOKEN_PLUS, TOKEN_SLASH, TOKEN_STAR,
+  TOKEN_LEFT_PAREN,
+  TOKEN_RIGHT_PAREN,
+  TOKEN_LEFT_BRACE,
+  TOKEN_RIGHT_BRACE,
+  TOKEN_COMMA,
+  TOKEN_DOT,
+  TOKEN_SEMICOLON,
+  TOKEN_MINUS,
+  TOKEN_PLUS,
+  TOKEN_SLASH,
+  TOKEN_STAR,
 
   // one or two character tokens 11
-  TOKEN_BANG, TOKEN_BANG_EQUAL,
-  TOKEN_EQUAL, TOKEN_EQUAL_EQUAL,
-  TOKEN_GREATER, TOKEN_GREATER_EQUAL,
-  TOKEN_LESS, TOKEN_LESS_EQUAL,
+  TOKEN_BANG,
+  TOKEN_BANG_EQUAL,
+  TOKEN_EQUAL,
+  TOKEN_EQUAL_EQUAL,
+  TOKEN_GREATER,
+  TOKEN_GREATER_EQUAL,
+  TOKEN_LESS,
+  TOKEN_LESS_EQUAL,
 
   // Literals 19
-  TOKEN_IDENTIFIER, TOKEN_STRING, TOKEN_NUMBER,
+  TOKEN_IDENTIFIER,
+  TOKEN_STRING,
+  TOKEN_NUMBER,
 
-  // Keywords
+  // Keywords 22
   TOKEN_AND, TOKEN_CLASS, TOKEN_ELSE, TOKEN_FALSE,
   TOKEN_FOR, TOKEN_FN, TOKEN_IF, TOKEN_NIL, TOKEN_OR,
   TOKEN_PRINT, TOKEN_RETURN, TOKEN_SUPER, TOKEN_THIS,
   TOKEN_TRUE, TOKEN_LET, TOKEN_WHILE,
 
-  // Misc
+  // Misc 38
   TOKEN_ERROR, TOKEN_EOF
 };
 }
@@ -69,7 +82,7 @@ struct Scanner {
 
   Token scan_token()
   {
-    std::cerr << "enter scan token\n";
+    // std::cerr << "enter scan token\n";
     skip_whitespace();
     m_start = m_current;
 
@@ -78,7 +91,6 @@ struct Scanner {
     }
     char c = advance();
 
-    //
     if (is_alpha(c)) return make_identifier_token();
     if (is_digit(c)) return make_number_token();
     switch (c) {
@@ -241,7 +253,6 @@ struct Scanner {
         advance();
       }
     }
-
     return make_token(TokenType::TOKEN_NUMBER);
   }
 

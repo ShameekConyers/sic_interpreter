@@ -54,7 +54,7 @@ struct StaticStack {
   void print()
   {
     for (Value* slot = m_data; slot < m_data_top; slot++) {
-      std::cout << "[ " << *slot << " ] ";
+      std::cout << "[ " << (*slot).as_number() << " ] ";
     }
     std::cout << "\n";
   }
@@ -122,7 +122,7 @@ struct VM {
         }
         case OpCode::OP_NEGATE:
         {
-          m_vm_stack.push(-m_vm_stack.pop());
+          m_vm_stack.push(Value::make<Number>(-(m_vm_stack.pop().get<Number>())));
           break;
         }
         case OpCode::OP_ADD:
@@ -175,9 +175,9 @@ struct VM {
   template<typename Fn>
   void binary_op(const Fn& func)
   {
-    Value b = m_vm_stack.pop();
-    Value a = m_vm_stack.pop();
-    m_vm_stack.push(func(a, b));
+    double b = m_vm_stack.pop().as_number();
+    double a = m_vm_stack.pop().as_number();
+    m_vm_stack.push(Value::make<Number>(func(a, b)));
   }
 
 };

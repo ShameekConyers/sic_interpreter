@@ -51,7 +51,7 @@ struct Parser {
 
   ParseRule m_rules[128] = {
         [TokenType::TOKEN_LEFT_PAREN]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {&Parser::compile_grouping, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_RIGHT_PAREN]
           = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_LEFT_BRACE]
@@ -65,13 +65,13 @@ struct Parser {
         [TokenType::TOKEN_SEMICOLON]
           = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_MINUS]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {&Parser::compile_unary, &Parser::compile_binary, Precedence::PREC_TERM},
         [TokenType::TOKEN_PLUS]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {nullptr, &Parser::compile_binary, Precedence::PREC_TERM},
         [TokenType::TOKEN_SLASH]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {nullptr, &Parser::compile_binary, Precedence::PREC_FACTOR},
         [TokenType::TOKEN_STAR]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {nullptr, &Parser::compile_binary, Precedence::PREC_FACTOR},
         [TokenType::TOKEN_BANG]
           = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_BANG_EQUAL]
@@ -176,8 +176,10 @@ struct Parser {
     (this->*prefix_rule)();
     while (precedence <= get_rule(m_current.m_type)->m_precedence) {
       advance();
-      void (Parser:: * infix_rule)() = get_rule(m_current.m_type)->m_infix;
+      void (Parser:: * infix_rule)() = get_rule(m_previous.m_type)->m_infix;
+
       (this->*infix_rule)();
+
     }
 
   }
@@ -193,6 +195,7 @@ struct Parser {
       if (m_current.m_type != TokenType::TOKEN_ERROR) break;
       else get_error_at_token(m_current, m_current.m_start);
     }
+
 
   }
 
@@ -238,7 +241,7 @@ struct Parser {
     parse_precedence(Precedence::PREC_ASSIGNMENT);
   }
 
-  void grouping()
+  void compile_grouping()
   {
     expression();
     consume(TokenType::TOKEN_RIGHT_PAREN, "Expected ')' after expression.");
@@ -276,6 +279,7 @@ struct Parser {
 
   void compile_binary()
   {
+
     TokenType::Any operator_type = m_previous.m_type;
     ParseRule* rule = get_rule(operator_type);
     parse_precedence((Precedence::Any)(rule->m_precedence + 1));
@@ -299,7 +303,7 @@ struct Parser {
   void compile_number()
   {
     double value = std::stod(m_previous.m_start);
-    emit_constant(value);
+    emit_constant(Value::make<Number>(value));
   }
 
   void get_error_at_token(const Token& token, const std::string& message)
@@ -329,15 +333,13 @@ struct Parser {
 };
 
 
-
-
 bool compile(const std::string& source, Chunk& chunk)
 {
   Scanner scanner{ source };
   Parser parser{ scanner, chunk };
   parser.advance();
   parser.expression();
-  // parser.consume(TokenType::TOKEN_EOF, "Expect end of expression.");
+  parser.consume(TokenType::TOKEN_EOF, "Expect end of expression.");
   int line = -1;
 
   return  !parser.m_error_state;
