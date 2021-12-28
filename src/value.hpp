@@ -64,7 +64,7 @@ struct Value {
   }
 
   template<typename T>
-  bool is_val()
+  bool is_type()
   {
 
   };
@@ -108,18 +108,22 @@ struct Value {
 
 
   template<>
-  bool is_val<double>()
+  bool is_type<double>()
   {
-
+    return true;
   }
 
   template<>
-  bool is_val<bool>()
+  bool is_type<bool>()
   {
-
+    return true;
   }
 #endif
-
+  friend std::ostream& operator<<(std::ostream& output_stream, Value& value)
+  {
+    output_stream << value.as_number();
+    return output_stream;
+  }
 };
 
 

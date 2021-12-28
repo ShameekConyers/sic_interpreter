@@ -32,7 +32,7 @@ int static constant_instruction(
 {
   uint8_t idx = chunk.m_data[offset + 1];
   std::cout << name << ":\t";
-  std::cout << +idx << " '" << chunk.m_constants.m_data[idx].as_number() << "'";
+  std::cout << +idx << " '" << chunk.m_constants.m_data[idx] << "'";
   std::cout << "\n";
   return offset + 2;
 }

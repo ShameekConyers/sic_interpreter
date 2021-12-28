@@ -1,10 +1,10 @@
 #pragma once
 
-
-
 #include <iostream>
 #include <functional>
 #include <string>
+#include <cstdarg>
+#include <fmt/core.h>
 
 #include "chunk.hpp"
 #include "value.hpp"
@@ -23,6 +23,8 @@ enum Any {
 
 template<typename T, size_t STACK_SIZE = 256>
 struct StaticStack {
+  T m_data[STACK_SIZE];
+  T* m_data_top;
 
   StaticStack()
   {
@@ -46,6 +48,11 @@ struct StaticStack {
     return *m_data_top;
   }
 
+  T peek(int distance)
+  {
+    return m_data_top[-distance];
+  }
+
   void clear()
   {
     m_data_top = m_data;
@@ -58,9 +65,6 @@ struct StaticStack {
     }
     std::cout << "\n";
   }
-
-  T m_data[STACK_SIZE];
-  T* m_data_top;
 };
 
 struct VM {
@@ -122,6 +126,10 @@ struct VM {
         }
         case OpCode::OP_NEGATE:
         {
+          if (!peek(0).is_type<Number>()) {
+            runtime_error("Operand must be a number");
+            return InterpretResult::RUNTIME_ERROR;
+          }
           m_vm_stack.push(Value::make<Number>(-(m_vm_stack.pop().get<Number>())));
           break;
         }
@@ -173,11 +181,38 @@ struct VM {
   }
 
   template<typename Fn>
-  void binary_op(const Fn& func)
+  InterpretResult::Any binary_op(const Fn& func)
   {
+    if (!peek(0).is_type<Number>() || !peek(1).is_type<Number>()) {
+      runtime_error("Operand must be numbers");
+      return InterpretResult::RUNTIME_ERROR;
+    }
     double b = m_vm_stack.pop().as_number();
     double a = m_vm_stack.pop().as_number();
     m_vm_stack.push(Value::make<Number>(func(a, b)));
+    return InterpretResult::OK;
+  }
+
+  // template<typename ...Args>
+  void runtime_error(const std::string& message
+    // , Args... args
+    , ...
+  )
+  {
+    // std::abort();
+    fmt::print(stderr, "{}", message);
+    fmt::print(stderr, "\n");
+
+    size_t instruction = m_instruction_ptr - m_chunk->m_data - 1;
+    int line = m_chunk->m_lines[instruction];
+    fmt::print(stderr, "[line {}] in script\n", line);
+    reset_vm_stack();
+  }
+
+  Value peek(int distance)
+  {
+    // note the interpreter advances past each instruction after executing it
+    return m_vm_stack.peek(distance - 1);
   }
 
 };

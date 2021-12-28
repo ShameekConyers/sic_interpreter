@@ -21,6 +21,11 @@ struct BaseArray {
     m_data = nullptr;
   }
 
+  T& operator[] (size_t idx)
+  {
+    return m_data[idx];
+  }
+
   void write(T input)
   {
     if (m_capacity < m_count + 1) {
