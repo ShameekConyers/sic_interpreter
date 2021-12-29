@@ -10,3 +10,7 @@ To be portable but staying close to native speed.
 
 You can easily run it in a Docker container for a minimal decrease in speed OR
 build from source using CMake.
+
+## Inspiration
+
+From the book *Crafting Interpeters, by Robert Nystrom*
