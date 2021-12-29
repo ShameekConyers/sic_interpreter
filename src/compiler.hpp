@@ -101,7 +101,7 @@ struct Parser {
         [TokenType::TOKEN_ELSE]
           = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_FALSE]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {&Parser::compile_literal, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_FOR]
           = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_FN]
@@ -109,7 +109,7 @@ struct Parser {
         [TokenType::TOKEN_IF]
           = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_NIL]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {&Parser::compile_literal, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_OR]
           = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_PRINT]
@@ -121,7 +121,7 @@ struct Parser {
         [TokenType::TOKEN_THIS]
           = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_TRUE]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {&Parser::compile_literal, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_LET]
           = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_WHILE]
@@ -190,8 +190,10 @@ struct Parser {
     m_previous = m_current;
 
     while (true) {
+
       m_current = m_scanner.scan_token();
-      std::cout << m_current.m_type << "\n";
+
+      std::cerr << m_current.m_type << "\n";
       if (m_current.m_type != TokenType::TOKEN_ERROR) break;
       else get_error_at_token(m_current, m_current.m_start);
     }
@@ -298,7 +300,24 @@ struct Parser {
     }
   }
 
+  void compile_literal()
+  {
 
+    TokenType::Any operator_type = m_previous.m_type;
+    switch (m_previous.m_type) {
+      case TokenType::TOKEN_FALSE:
+        emit_byte(OpCode::OP_FALSE);
+        break;
+      case TokenType::TOKEN_TRUE:
+        emit_byte(OpCode::OP_TRUE);
+        break;
+      case TokenType::TOKEN_NIL:
+        emit_byte(OpCode::OP_NIL);
+        break;
+      default:
+        return; // unreachable
+    }
+  }
 
   void compile_number()
   {

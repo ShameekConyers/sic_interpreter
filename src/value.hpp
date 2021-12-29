@@ -19,6 +19,7 @@ struct Value {
   union {
     bool boolean;
     double number;
+    nullptr_t nil;
   } data;
 
   void set_bool(bool value)
@@ -31,9 +32,9 @@ struct Value {
     data.number = value;
   }
 
-  void set_nil()
+  void set_nil(nullptr_t value)
   {
-
+    data.nil = value;
   }
 
   bool as_bool()
@@ -68,6 +69,24 @@ struct Value {
   {
 
   };
+
+  std::string to_str()
+  {
+    switch (m_type) {
+      case ValueType::VAL_BOOL:
+        return data.boolean ? "true" : "false";
+        break;
+      case ValueType::VAL_NUMBER:
+        return std::to_string(data.number);
+        break;
+      case ValueType::VAL_NIL:
+        return "nil";
+        break;
+      default:
+        return "ERROR";
+        break;
+    }
+  }
 
 #ifndef __INTELLISENSE__
   template<>
@@ -106,6 +125,14 @@ struct Value {
     return v;
   }
 
+  template<>
+  Value make<nullptr_t>(nullptr_t val)
+  {
+    Value v;
+    v.m_type = ValueType::VAL_NIL;
+    v.set_nil(val);
+    return v;
+  }
 
   template<>
   bool is_type<double>()

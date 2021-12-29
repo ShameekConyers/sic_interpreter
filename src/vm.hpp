@@ -61,7 +61,7 @@ struct StaticStack {
   void print()
   {
     for (Value* slot = m_data; slot < m_data_top; slot++) {
-      std::cout << "[ " << (*slot).as_number() << " ] ";
+      std::cout << "[ " << (*slot).to_str() << " ] ";
     }
     std::cout << "\n";
   }
@@ -122,6 +122,21 @@ struct VM {
         {
           Value constant = read_constant(adv_instruction());
           m_vm_stack.push(constant);
+          break;
+        }
+        case OpCode::OP_TRUE:
+        {
+          m_vm_stack.push(Value::make<bool>(true));
+          break;
+        }
+        case OpCode::OP_FALSE:
+        {
+          m_vm_stack.push(Value::make<bool>(false));
+          break;
+        }
+        case OpCode::OP_NIL:
+        {
+          m_vm_stack.push(Value::make<nullptr_t>(nullptr));
           break;
         }
         case OpCode::OP_NEGATE:

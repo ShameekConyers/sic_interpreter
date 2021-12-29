@@ -296,7 +296,7 @@ struct Scanner {
           break;
         }
         switch (m_start[1]) {
-          case 'r': return  check_keyword("true", TokenType::TOKEN_TRUE);
+          case 'r': return check_keyword("true", TokenType::TOKEN_TRUE);
           case 'h': return check_keyword("this", TokenType::TOKEN_THIS);
         }
 
@@ -310,14 +310,16 @@ struct Scanner {
     const std::string& target_keyword,
     TokenType::Any token_to_check)
   {
+
     const char* cursor = m_start;
     size_t keyword_size = target_keyword.size();
     if (m_current - m_start != keyword_size) {
+
       return TokenType::TOKEN_IDENTIFIER;
     }
-    for (uint32_t i = 0; i < keyword_size; i++) {
 
-      if (target_keyword[i] != cursor[0]) {
+    for (uint32_t i = 0; i < keyword_size; i++) {
+      if (target_keyword[i] != cursor[i]) {
         return TokenType::TOKEN_IDENTIFIER;
       }
     }
