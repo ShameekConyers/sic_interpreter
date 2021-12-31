@@ -1,13 +1,13 @@
 
-if(LINUX)
-  set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-  set(BUILD_SHARED_LIBS OFF)
-  set(CMAKE_EXE_LINKER_FLAGS "-static")
-endif()
+# if(LINUX)
+#   set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+#   set(BUILD_SHARED_LIBS OFF)
+#   set(CMAKE_EXE_LINKER_FLAGS "-static")
+# endif()
 
 set(CMAKE_CXX_COMPILER clang++)
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.20)
 
 project(cpplox LANGUAGES CXX)
 set(CMAKE_OSX_ARCHITECTURES x86_64)

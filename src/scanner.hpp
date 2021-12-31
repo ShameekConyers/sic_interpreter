@@ -45,11 +45,11 @@ enum Any {
 }
 
 struct Token {
-
   TokenType::Any m_type;
   const char* m_start;
   uint32_t m_length;
   uint32_t m_line;
+
 };
 
 char* make_token_error_msg(const std::string& message)
@@ -72,6 +72,12 @@ void process_token_error_msg(Token& token)
 
 
 struct Scanner {
+  // m_start_lexeme_char
+  const char* m_start;
+  // m_current_lexeme_char (end of scanned token)
+  const char* m_current;
+  uint32_t m_line;
+
 
   Scanner(const std::string& source)
   {
@@ -327,9 +333,4 @@ struct Scanner {
     return token_to_check;
   }
 
-  // m_start_lexeme_char
-  const char* m_start;
-  // m_current_lexeme_char (end of scanned token)
-  const char* m_current;
-  uint32_t m_line;
 };

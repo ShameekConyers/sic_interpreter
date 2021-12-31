@@ -18,7 +18,6 @@ void static repl()
   char line[1024];
   for (;;) {
     std::cout << "> ";
-
     if (!std::cin.getline(line, 1024).good()) {
       std::cout << "\n";
       break;

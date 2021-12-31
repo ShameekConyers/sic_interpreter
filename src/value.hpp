@@ -20,31 +20,31 @@ struct Value {
     bool boolean;
     double number;
     nullptr_t nil;
-  } data;
+  } m_data;
 
   void set_bool(bool value)
   {
-    data.boolean = value;
+    m_data.boolean = value;
   }
 
   void set_number(double value)
   {
-    data.number = value;
+    m_data.number = value;
   }
 
   void set_nil(nullptr_t value)
   {
-    data.nil = value;
+    m_data.nil = value;
   }
 
   bool as_bool()
   {
-    return data.boolean;
+    return m_data.boolean;
   }
 
   double as_number()
   {
-    return data.number;
+    return m_data.number;
   }
 
   void as_nil()
@@ -74,10 +74,10 @@ struct Value {
   {
     switch (m_type) {
       case ValueType::VAL_BOOL:
-        return data.boolean ? "true" : "false";
+        return m_data.boolean ? "true" : "false";
         break;
       case ValueType::VAL_NUMBER:
-        return std::to_string(data.number);
+        return std::to_string(m_data.number);
         break;
       case ValueType::VAL_NIL:
         return "nil";
@@ -95,7 +95,7 @@ struct Value {
     if (m_type != ValueType::VAL_BOOL) {
 
     }
-    return data.boolean;
+    return m_data.boolean;
   }
 
   template<>
@@ -104,7 +104,7 @@ struct Value {
     if (m_type != ValueType::VAL_NUMBER) {
 
     }
-    return data.number;
+    return m_data.number;
   }
 
   template<>
@@ -148,7 +148,7 @@ struct Value {
 #endif
   friend std::ostream& operator<<(std::ostream& output_stream, Value& value)
   {
-    output_stream << value.as_number();
+    output_stream << value.to_str();
     return output_stream;
   }
 };

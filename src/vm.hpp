@@ -114,8 +114,8 @@ struct VM {
       switch (instruction = adv_instruction()) {
         case OpCode::OP_RETURN:
         {
-          return InterpretResult::OK;
           m_vm_stack.pop();
+          return InterpretResult::OK;
           break;
         }
         case OpCode::OP_CONSTANT:
