@@ -25,9 +25,11 @@ template<typename T, size_t STACK_SIZE = 256>
 struct StaticStack {
   T m_data[STACK_SIZE];
   T* m_data_top;
+  size_t m_size;
 
   StaticStack()
   {
+    m_size = 0;
     m_data_top = m_data;
   }
 
@@ -40,21 +42,27 @@ struct StaticStack {
   {
     *m_data_top = item;
     m_data_top++;
+    m_size++;
   }
 
   T pop()
   {
+    m_size--;
     m_data_top--;
     return *m_data_top;
   }
 
   T peek(int distance)
   {
-    return m_data_top[-distance];
+    // std::cerr << m_size;
+    // std::cerr << distance;
+    // std::cerr << "\ncerr: " << m_data_top[-1].m_type << "\n";
+    return m_data_top[-(distance)];
   }
 
   void clear()
   {
+    m_size = 0;
     m_data_top = m_data;
   }
 
@@ -71,6 +79,23 @@ struct VM {
   Chunk* m_chunk;
   uint8_t* m_instruction_ptr;
   StaticStack<Value> m_vm_stack;
+  Obj* m_obj_head;
+
+  VM()
+  {
+    init();
+  }
+
+  ~VM()
+  {
+    free();
+  }
+
+  void init()
+  {
+    m_obj_head = nullptr;
+    reset_vm_stack();
+  }
 
   InterpretResult::Any interpret(const std::string& source)
   {
@@ -95,12 +120,6 @@ struct VM {
     m_instruction_ptr = m_chunk->m_data;
     return execute();
   }
-
-  void init()
-  {
-    reset_vm_stack();
-  }
-
   InterpretResult::Any execute()
   {
     for (;;) {
@@ -201,7 +220,17 @@ struct VM {
 
   void free()
   {
+    free_objects();
+  }
 
+  void free_objects()
+  {
+    Obj* obj = m_obj_head;
+    while (obj != nullptr) {
+      Obj* next = obj->m_next;
+      free_object(obj);
+      obj = next;
+    }
   }
 
   Value read_constant(uint8_t idx)
@@ -218,13 +247,23 @@ struct VM {
   template<typename Fn>
   InterpretResult::Any binary_op(const Fn& func)
   {
-    if (!peek(0).is_type<Number>() || !peek(1).is_type<Number>()) {
+
+
+    if (peek(0).is_type<ObjPtr>() && peek(1).is_type<ObjPtr>()) {
+      ObjPtr b = m_vm_stack.pop().as_obj();
+      ObjPtr a = m_vm_stack.pop().as_obj();
+      m_vm_stack.push(Value::make<ObjPtr>(&func(*a, *b)));
+    }
+    else if (peek(0).is_type<Number>() && peek(1).is_type<Number>()) {
+      double b = m_vm_stack.pop().as_number();
+      double a = m_vm_stack.pop().as_number();
+      m_vm_stack.push(Value::make<Number>(func(a, b)));
+    }
+    else {
       runtime_error("Operand must be numbers");
       return InterpretResult::RUNTIME_ERROR;
     }
-    double b = m_vm_stack.pop().as_number();
-    double a = m_vm_stack.pop().as_number();
-    m_vm_stack.push(Value::make<Number>(func(a, b)));
+
     return InterpretResult::OK;
   }
 
@@ -234,7 +273,6 @@ struct VM {
     , ...
   )
   {
-    // std::abort();
     fmt::print(stderr, "{}", message);
     fmt::print(stderr, "\n");
 
@@ -247,7 +285,15 @@ struct VM {
   Value peek(int distance)
   {
     // note the interpreter advances past each instruction after executing it
-    return m_vm_stack.peek(distance - 1);
+    return m_vm_stack.peek(distance + 1);
   }
 
 };
+
+VM vm{};
+
+void update_vm_obj_list(Obj* obj)
+{
+  obj->m_next = vm.m_obj_head;
+  vm.m_obj_head = obj;
+}

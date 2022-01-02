@@ -3,6 +3,7 @@
 #include "base_array.hpp"
 #include "memory.hpp"
 #include "exception.hpp"
+#include "object.hpp"
 #include <iostream>
 
 namespace ValueType
@@ -14,107 +15,9 @@ enum Any {
   VAL_OBJ // Lives on heap
 };
 }
-namespace ObjType
-{
-enum Any {
-  OBJ_STR
-};
-}
 
-
-
-using string = std::string;
-struct Obj;
-struct String;
-
-struct Obj {
-  string m_name;
-  ObjType::Any m_type;
-
-
-  static Obj* allocate_object(ObjType::Any type);
-
-  template<typename T>
-  static Obj* allocate_object();
-
-  string to_str_literal();
-
-#ifndef __INTELLISENSE__
-  template<>
-  Obj* allocate_object<String>();
-#endif
-private:
-};
-
-struct String : public Obj {
-  int m_length;
-  char* m_chars;
-
-  String(const char* chars, int length)
-  {
-
-  }
-  static String* copy_str(const char* chars, int length)
-  {
-    char* heap_chars = allocate<char>(length + 1);
-    memcpy(heap_chars, chars, length);
-    heap_chars[length] = '\0';
-    return allocate_string(heap_chars, length);
-  }
-
-  static String* allocate_string(char* heap_chars, int length)
-  {
-    String* string = reinterpret_cast<String*>(Obj::allocate_object<String>());
-    string->m_length = length;
-    string->m_chars = heap_chars;
-    return string;
-  }
-
-  string to_str_literal()
-  {
-    return m_chars;
-  }
-};
-
-
-Obj* Obj::allocate_object(ObjType::Any type)
-{
-  switch (type) {
-    case ObjType::OBJ_STR:
-    {
-      Obj* obj = allocate<Obj>(sizeof(String));
-      obj->m_name = "String";
-      obj->m_type = type;
-      return obj;
-      break;
-    }
-    default:
-      runtime_exception();
-      break;
-  }
-}
-
-template<>
-Obj* Obj::allocate_object<String>()
-{
-  Obj* obj = allocate<Obj>(sizeof(String));
-  obj->m_type = ObjType::OBJ_STR;
-  return obj;
-}
-
-string Obj::to_str_literal()
-{
-  switch (m_type) {
-    case ObjType::OBJ_STR:
-      return reinterpret_cast<String*>(this)->to_str_literal();
-      break;
-    default:
-      break;
-  }
-}
-
-using ObjPtr = Obj*;
 using Number = double;
+
 struct Value {
   ValueType::Any m_type;
   union {
@@ -235,13 +138,14 @@ struct Value {
         return "nil";
         break;
       case ValueType::VAL_OBJ:
-        return m_data.obj->to_str_literal();
+        return m_data.obj->print_object();
         break;
       default:
         return "ERROR";
         break;
     }
   }
+
 
 #ifndef __INTELLISENSE__
   template<>
@@ -318,6 +222,7 @@ struct Value {
     return v;
   }
 
+
   //
 
   template<>
@@ -350,6 +255,7 @@ struct Value {
   template<>
   bool is_type<ObjPtr>()
   {
+
     if (m_type == ValueType::VAL_OBJ) {
       return true;
     }
@@ -375,10 +281,12 @@ struct Value {
       case ValueType::VAL_BOOL: return a.get<bool>() == b.get<bool>();
       case ValueType::VAL_NIL: return true;
       case ValueType::VAL_NUM: return a.get<Number>() == b.get<Number>();
+      case ValueType::VAL_OBJ:
+        return is_objects_equal(a.as_obj(), b.as_obj());
       default: return false; // unreachable
     }
   }
-    };
+};
 
 
 using ValueArray = BaseArray<Value>;

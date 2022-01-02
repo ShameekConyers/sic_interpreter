@@ -14,6 +14,8 @@ T* grow_array(T* ptr, ssize_t old_count, ssize_t new_count);
 template<typename T>
 void free_array(T* ptr, ssize_t old_count);
 
+template<typename T>
+void free_type(T* ptr);
 
 // END DECLARATIONS
 

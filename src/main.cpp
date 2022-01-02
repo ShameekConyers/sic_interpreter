@@ -11,7 +11,6 @@
 #include <sstream>
 
 
-VM vm{};
 
 void static repl()
 {
