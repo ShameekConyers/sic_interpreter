@@ -75,23 +75,23 @@ struct Parser {
         [TokenType::TOKEN_BANG]
           = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_BANG_EQUAL]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {nullptr, &Parser::compile_binary, Precedence::PREC_EQUALITY},
         [TokenType::TOKEN_EQUAL]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {nullptr, &Parser::compile_binary, Precedence::PREC_ASSIGNMENT},
         [TokenType::TOKEN_EQUAL_EQUAL]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {nullptr, &Parser::compile_binary, Precedence::PREC_EQUALITY},
         [TokenType::TOKEN_GREATER]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {nullptr, &Parser::compile_binary, Precedence::PREC_COMPARISON},
         [TokenType::TOKEN_GREATER_EQUAL]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {nullptr, &Parser::compile_binary, Precedence::PREC_COMPARISON},
         [TokenType::TOKEN_LESS]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {nullptr, &Parser::compile_binary, Precedence::PREC_COMPARISON},
         [TokenType::TOKEN_LESS_EQUAL]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {nullptr, &Parser::compile_binary, Precedence::PREC_COMPARISON},
         [TokenType::TOKEN_IDENTIFIER]
           = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_STRING]
-          = {&Parser::compile_unary, nullptr, Precedence::PREC_NONE},
+          = {&Parser::compile_string, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_NUMBER]
           = {&Parser::compile_number, nullptr, Precedence::PREC_NONE},
         [TokenType::TOKEN_AND]
@@ -273,7 +273,9 @@ struct Parser {
       case TokenType::TOKEN_MINUS:
         emit_byte(OpCode::OP_NEGATE);
         break;
-
+      case TokenType::TOKEN_BANG:
+        emit_byte(OpCode::OP_NOT);
+        break;
       default:
         return;
     }
@@ -287,13 +289,35 @@ struct Parser {
     parse_precedence((Precedence::Any)(rule->m_precedence + 1));
 
     switch (operator_type) {
-      case TokenType::TOKEN_PLUS: emit_byte(OpCode::OP_ADD);
+      case TokenType::TOKEN_PLUS:
+        emit_byte(OpCode::OP_ADD);
         break;
-      case TokenType::TOKEN_MINUS: emit_byte(OpCode::OP_SUBTRACT);
+      case TokenType::TOKEN_MINUS:
+        emit_byte(OpCode::OP_SUBTRACT);
         break;
-      case TokenType::TOKEN_STAR: emit_byte(OpCode::OP_MULTIPLY);
+      case TokenType::TOKEN_STAR:
+        emit_byte(OpCode::OP_MULTIPLY);
         break;
-      case TokenType::TOKEN_SLASH: emit_byte(OpCode::OP_DIVIDE);
+      case TokenType::TOKEN_SLASH:
+        emit_byte(OpCode::OP_DIVIDE);
+        break;
+      case TokenType::TOKEN_BANG_EQUAL:
+        emit_two_bytes(OpCode::OP_EQUAL, OpCode::OP_NOT);
+        break;
+      case TokenType::TOKEN_EQUAL_EQUAL:
+        emit_byte(OpCode::OP_EQUAL);
+        break;
+      case TokenType::TOKEN_GREATER:
+        emit_byte(OpCode::OP_GREATER);
+        break;
+      case TokenType::TOKEN_GREATER_EQUAL:
+        emit_two_bytes(OpCode::OP_LESS, OpCode::OP_NOT);
+        break;
+      case TokenType::TOKEN_LESS:
+        emit_byte(OpCode::OP_LESS);
+        break;
+      case TokenType::TOKEN_LESS_EQUAL:
+        emit_two_bytes(OpCode::OP_GREATER, OpCode::OP_NOT);
         break;
       default:
         return; // unreachable
@@ -302,7 +326,6 @@ struct Parser {
 
   void compile_literal()
   {
-
     TokenType::Any operator_type = m_previous.m_type;
     switch (m_previous.m_type) {
       case TokenType::TOKEN_FALSE:
@@ -323,6 +346,17 @@ struct Parser {
   {
     double value = std::stod(m_previous.m_start);
     emit_constant(Value::make<Number>(value));
+  }
+
+  void compile_string()
+  {
+    // the +1 and -2 is to trim the leading and trailing quotation marks
+
+    emit_constant(Value::make<ObjPtr>(
+      String::copy_str(m_previous.m_start + 1, m_previous.m_length - 2)
+      ));
+
+
   }
 
   void get_error_at_token(const Token& token, const std::string& message)

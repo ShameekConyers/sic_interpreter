@@ -58,6 +58,8 @@ int disassemble_instruction(const Chunk& chunk, int offset)
       return simple_instruction("OP_FALSE", offset);
     case OpCode::OP_NIL:
       return simple_instruction("OP_NIL", offset);
+    case OpCode::OP_NOT:
+      return simple_instruction("OP_NOT", offset);
     case OpCode::OP_ADD:
       return simple_instruction("OP_ADD", offset);
     case OpCode::OP_SUBTRACT:
@@ -66,6 +68,13 @@ int disassemble_instruction(const Chunk& chunk, int offset)
       return simple_instruction("OP_MULTIPLY", offset);
     case OpCode::OP_DIVIDE:
       return simple_instruction("OP_DIVIDE", offset);
+    case OpCode::OP_EQUAL:
+      return simple_instruction("OP_EQUAL", offset);
+    case OpCode::OP_GREATER:
+      return simple_instruction("OP_GREATER", offset);
+    case OpCode::OP_LESS:
+      return simple_instruction("OP_DIVIDE", offset);
+
     default:
       std::cout << "Unknown opcode " << instruction << "\n";
       return offset + 1;

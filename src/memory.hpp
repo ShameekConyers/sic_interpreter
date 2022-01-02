@@ -36,6 +36,12 @@ void* reallocate(void* ptr, size_t old_size, size_t new_size)
 }
 
 template<typename T>
+T* allocate(int size)
+{
+  return reinterpret_cast<T*>(reallocate(nullptr, 0, size));
+}
+
+template<typename T>
 T* grow_array(T* ptr, ssize_t old_count, ssize_t new_count)
 {
   return (T*)reallocate(ptr, sizeof(T) * old_count, sizeof(T) * new_count);

@@ -148,6 +148,26 @@ struct VM {
           m_vm_stack.push(Value::make<Number>(-(m_vm_stack.pop().get<Number>())));
           break;
         }
+        case OpCode::OP_NOT:
+        {
+          m_vm_stack.push(Value::make<bool>(is_value_false(m_vm_stack.pop())));
+          break;
+        }
+        case OpCode::OP_EQUAL:
+        {
+          Value a = m_vm_stack.pop();
+          Value b = m_vm_stack.pop();
+          m_vm_stack.push(Value::make<bool>(is_values_equal(a, b)));
+          break;
+        }
+        case OpCode::OP_GREATER:
+        {
+          break;
+        }
+        case OpCode::OP_LESS:
+        {
+          break;
+        }
         case OpCode::OP_ADD:
         {
           binary_op(std::plus());

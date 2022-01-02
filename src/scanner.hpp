@@ -232,11 +232,12 @@ struct Scanner {
 
   Token make_string_token()
   {
+
     while (peek() != '"' && !is_at_end()) {
       if (peek() == '\n') {
         m_line++;
-        advance();
       }
+      advance();
     }
 
     if (is_at_end()) {

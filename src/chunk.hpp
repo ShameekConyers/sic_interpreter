@@ -17,6 +17,10 @@ enum {
   OP_SUBTRACT,
   OP_MULTIPLY,
   OP_DIVIDE,
+  OP_NOT,
+  OP_EQUAL,
+  OP_GREATER,
+  OP_LESS,
   OP_NEGATE,	// 1 Byte
   OP_RETURN,	// 1 Byte
 };

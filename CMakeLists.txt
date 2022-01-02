@@ -5,7 +5,7 @@
 #   set(CMAKE_EXE_LINKER_FLAGS "-static")
 # endif()
 
-set(CMAKE_CXX_COMPILER clang++)
+# set(CMAKE_CXX_COMPILER clang++)
 
 cmake_minimum_required(VERSION 3.20)
 
