@@ -17,12 +17,22 @@ struct String;
 struct Obj;
 void update_vm_obj_list(Obj* obj);
 
+uint64_t hash_string(const char* chars, int length)
+{
+  //  FNV-1a 64-bit
+  uint64_t hash = 14695981039346656037u;
+  for (int i = 0; i < length; i++) {
+    hash ^= (uint8_t)chars[i];
+    hash *= 1099511628211;
+  }
+  return hash;
+}
+
 struct Obj {
   string m_name;
   ObjType::Any m_type;
   struct Obj* m_next;
-
-
+  uint64_t m_hash;
 
   static Obj* allocate_object(ObjType::Any type);
 
@@ -74,6 +84,7 @@ struct String : public Obj {
   static String* allocate_string(char* heap_chars, int length)
   {
     String* string = reinterpret_cast<String*>(Obj::allocate_object<String>());
+    string->m_hash = hash_string(heap_chars, length);
     string->m_length = length;
     string->m_chars = heap_chars;
     return string;
@@ -82,6 +93,7 @@ struct String : public Obj {
   static String* take_string(char* heap_chars, int length)
   {
     String* string = reinterpret_cast<String*>(Obj::allocate_object<String>());
+    string->m_hash = hash_string(heap_chars, length);
     string->m_length = length;
     string->m_chars = heap_chars;
     return string;

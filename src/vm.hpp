@@ -9,6 +9,7 @@
 #include "chunk.hpp"
 #include "value.hpp"
 #include "compiler.hpp"
+#include "object_map.hpp"
 
 
 namespace InterpretResult
